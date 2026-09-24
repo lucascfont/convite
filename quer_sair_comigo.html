@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quer Sair Comigo? ❤️</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Canvas Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #feada6 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .title-font {
+            font-family: 'Fredoka', cursive;
+        }
+
+        /* Glassmorphism Card Style */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 20px 40px rgba(225, 29, 72, 0.15);
+        }
+
+        /* Floating Hearts Animation Background */
+        .bg-hearts {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .bg-heart {
+            position: absolute;
+            color: rgba(244, 63, 94, 0.25);
+            animation: floatUp 8s linear infinite;
+            bottom: -50px;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) rotate(0deg) scale(0.8);
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(-110vh) rotate(360deg) scale(1.2);
+                opacity: 0;
+            }
+        }
+
+        /* Pulse animation for main heart */
+        @keyframes heartPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+
+        .animate-heart-pulse {
+            animation: heartPulse 1.5s infinite ease-in-out;
+        }
+
+        /* Button Dodge effect setup */
+        #btn-no {
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            z-index: 20;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4 relative overflow-hidden">
+
+    <div class="bg-hearts" id="bg-hearts-container"></div>
+
+    <main class="glass-card rounded-3xl p-6 sm:p-10 max-w-lg w-full text-center relative z-10 my-auto shadow-2xl transition-all duration-300">
+        <!-- Cute Icon Header -->
+        <div class="relative inline-block mb-4">
+            <div class="w-24 h-24 bg-rose-100 rounded-full flex items-center justify-center mx-auto shadow-inner border-4 border-rose-200">
+                <i class="fa-solid fa-heart text-rose-500 text-5xl animate-heart-pulse"></i>
+            </div>
+            <span class="absolute -bottom-1 -right-1 bg-pink-500 text-white rounded-full p-2 text-xs shadow-lg">
+                <i class="fa-solid fa-sparkles"></i> ✨
+            </span>
+        </div>
+
+        <!-- Question -->
+        <h1 class="title-font text-3xl sm:text-4xl font-bold text-rose-600 mb-3 tracking-wide">
+            Quer sair comigo?
+        </h1>
+        <p class="text-rose-400 font-semibold mb-8 text-sm sm:text-base">
+            Prometo que vai gostar
+        </p>
+
+        <!-- Buttons Container -->
+        <div id="button-area" class="relative min-h-[140px] flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 pt-2">
+            <!-- YES BUTTON -->
+            <button id="btn-yes" onclick="acceptProposal()" class="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white font-extrabold text-lg rounded-2xl shadow-lg hover:shadow-rose-400/50 hover:scale-105 active:scale-95 transition-all duration-200 flex items-center justify-center gap-2 group z-10 cursor-pointer">
+                <i class="fa-solid fa-check group-hover:bounce"></i>
+                <span>SIM, com certeza! ❤️</span>
+            </button>
+
+            <!-- NO BUTTON -->
+            <button id="btn-no" class="w-full sm:w-auto px-8 py-4 bg-gray-200 text-gray-600 font-bold text-lg rounded-2xl shadow hover:bg-gray-300 transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer">
+                <i class="fa-solid fa-xmark"></i>
+                <span>Não</span>
+            </button>
+        </div>
+
+        <!-- Cute Hint Message (Changes dynamically when trying to click No) -->
+        <p id="hint-text" class="text-xs text-rose-400/80 mt-6 italic font-medium min-h-[20px] transition-opacity duration-300">
+            
+        </p>
+    </main>
+
+    <div id="success-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 opacity-0 pointer-events-none transition-all duration-500 p-4">
+        <div class="glass-card bg-white/95 rounded-3xl p-8 max-w-md w-full text-center shadow-2xl border-4 border-rose-300 transform scale-90 transition-transform duration-500" id="modal-content">
+            <div class="text-6xl mb-4 animate-bounce">
+                🎉 💖 🥳
+            </div>
+            <h2 class="title-font text-3xl font-bold text-rose-600 mb-3">
+                SaaaaabiA que você ia aceitar! 😍
+            </h2>
+            <p class="text-gray-700 text-lg mb-6 leading-relaxed">
+                Já pode ir escolhendo a roupa! Me manda uma mensagem no WhatsApp para combinarmos o horário e o lugar! ✨
+            </p>
+
+            <div class="p-4 bg-rose-50 rounded-2xl border border-rose-200 mb-6 text-rose-700 font-semibold text-sm">
+                📍 Encontro oficial confirmado! Prepara o coração! 💕
+            </div>
+
+            <button onclick="closeModal()" class="w-full py-3.5 bg-gradient-to-r from-rose-500 to-pink-500 text-white font-extrabold rounded-xl shadow-md hover:opacity-90 active:scale-95 transition-all">
+                Te aviso já já! 🥰
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function createBackgroundHearts() {
+            const container = document.getElementById('bg-hearts-container');
+            const heartIcons = ['fa-heart', 'fa-heart-pulse', 'fa-heart-circle-check', 'fa-sparkles'];
+            const count = 18;
+
+            for (let i = 0; i < count; i++) {
+                const heart = document.createElement('i');
+                const randomIcon = heartIcons[Math.floor(Math.random() * heartIcons.length)];
+                
+                heart.className = `fa-solid ${randomIcon} bg-heart`;
+                heart.style.left = `${Math.random() * 100}%`;
+                heart.style.fontSize = `${Math.random() * 20 + 12}px`;
+                heart.style.animationDuration = `${Math.random() * 6 + 6}s`;
+                heart.style.animationDelay = `${Math.random() * 5}s`;
+                
+                container.appendChild(heart);
+            }
+        }
+
+        const btnNo = document.getElementById('btn-no');
+        const hintText = document.getElementById('hint-text');
+
+        const funnyHints = [
+            "Ops! Quase... tenta de novo! 😜",
+            "Ei, o botão 'Não' é meio tímido! 🙈",
+            "Eu acho que a resposta certa é o SIM! ✨",
+            "Não adianta fugir do destino! ❤️",
+            "Esse botão tá meio estragado, clica no SIM! 😂",
+            "Errou a mira! O 'Sim' tá logo ali! 👉"
+        ];
+
+        let dodgeCount = 0;
+
+        function dodgeButton() {
+            // Get viewport dimensions considering margins
+            const pad = 20;
+            const btnWidth = btnNo.offsetWidth;
+            const btnHeight = btnNo.offsetHeight;
+
+            const maxX = window.innerWidth - btnWidth - pad;
+            const maxY = window.innerHeight - btnHeight - pad;
+
+            // Generate random absolute position on viewport
+            const randomX = Math.max(pad, Math.floor(Math.random() * maxX));
+            const randomY = Math.max(pad, Math.floor(Math.random() * maxY));
+
+            // Change button positioning mode to fixed on first dodge
+            btnNo.style.position = 'fixed';
+            btnNo.style.left = `${randomX}px`;
+            btnNo.style.top = `${randomY}px`;
+
+            // Change hint message
+            dodgeCount++;
+            const randomHint = funnyHints[Math.floor(Math.random() * funnyHints.length)];
+            hintText.innerText = randomHint;
+            hintText.classList.add('text-rose-600', 'font-bold');
+
+            // Slightly inflate the YES button to tempt user
+            const btnYes = document.getElementById('btn-yes');
+            const currentScale = 1 + Math.min(dodgeCount * 0.05, 0.4);
+            btnYes.style.transform = `scale(${currentScale})`;
+        }
+
+        // Event listeners for dodge (hover and mobile touch/click attempt)
+        btnNo.addEventListener('mouseenter', dodgeButton);
+        btnNo.addEventListener('touchstart', function(e) {
+            e.preventDefault(); // Prevent accidental click on mobile touch
+            dodgeButton();
+        });
+        btnNo.addEventListener('click', function(e) {
+            e.preventDefault();
+            dodgeButton();
+        });
+
+        function acceptProposal() {
+            // Trigger multi-stage confetti explosion
+            triggerConfettiAnimation();
+
+            // Display modal
+            const modal = document.getElementById('success-modal');
+            const modalContent = document.getElementById('modal-content');
+
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            modal.classList.add('opacity-100');
+            modalContent.classList.remove('scale-90');
+            modalContent.classList.add('scale-100');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('success-modal');
+            const modalContent = document.getElementById('modal-content');
+
+            modal.classList.remove('opacity-100');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            modalContent.classList.remove('scale-100');
+            modalContent.classList.add('scale-90');
+        }
+
+        function triggerConfettiAnimation() {
+            // Heart confetti shape if available, mixed with standard
+            const duration = 3.5 * 1000;
+            const animationEnd = Date.now() + duration;
+
+            const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 1000 };
+
+            function randomInRange(min, max) {
+                return Math.random() * (max - min) + min;
+            }
+
+            const interval = setInterval(function() {
+                const timeLeft = animationEnd - Date.now();
+
+                if (timeLeft <= 0) {
+                    return clearInterval(interval);
+                }
+
+                const particleCount = 50 * (timeLeft / duration);
+
+                // Burst from left and right bottom
+                confetti({
+                    ...defaults,
+                    particleCount,
+                    origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+                    colors: ['#ff007f', '#ff4d6d', '#ff758f', '#ffb3c1', '#ffffff']
+                });
+                confetti({
+                    ...defaults,
+                    particleCount,
+                    origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
+                    colors: ['#ff007f', '#ff4d6d', '#ff758f', '#ffb3c1', '#ffffff']
+                });
+            }, 250);
+        }
+
+        // Initialize background animations on page load
+        window.onload = function() {
+            createBackgroundHearts();
+        };
+    </script>
+</body>
+</html>
